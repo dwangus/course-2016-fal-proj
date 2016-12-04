@@ -7,6 +7,7 @@ import uuid
 import time
 import ast
 import math
+from collections import defaultdict
 
 def calculate(x0, y0, x1, y1):
     x_d_sq = pow(abs(x0) - abs(x1), 2)
@@ -17,17 +18,17 @@ def calculate(x0, y0, x1, y1):
 class crimeRates(dml.Algorithm):
     contributor = 'aliyevaa_bsowens_dwangus_jgtsui'
 
-    setExtensions = ['boston_grid_crime_rates_cellSize1000sqft']
-    titles = ['Boston Grid Cells Crime Incidence 2012 - 2015']
-    oldSetExtensions = ['crime2012_2015', 'cell_GPS_center_coordinates']
+    setExtensions = ['boston_grid_crime_rates_cellSize1000sqft', 'boston_grid_properties_cellSize1000sqft']
+    titles = ['Boston Grid Cells Crime Incidence 2012 - 2015', 'Property Assessment 2016']
+    oldSetExtensions = ['crimes_new', 'cell_GPS_center_coordinates','property_assessment']
 
     reads = ['aliyevaa_bsowens_dwangus_jgtsui.' + dataSet for dataSet in oldSetExtensions]
     writes = ['aliyevaa_bsowens_dwangus_jgtsui.' + dataSet for dataSet in setExtensions]
-
     dataSetDict = {}
     for i in range(len(setExtensions)):
         dataSetDict[setExtensions[i]] = (writes[i], titles[i])
-
+  
+   
     @staticmethod
     def execute(trial=False):
         startTime = datetime.datetime.now()
@@ -35,30 +36,67 @@ class crimeRates(dml.Algorithm):
         repo = client.repo
         repo.authenticate(crimeRates.contributor, crimeRates.contributor)
 
-        myrepo = repo.aliyevaa_bsowens_dwangus_jgtsui
-
-        #'''
+        myrepo = repo.aliyevaa_bsowens_dwangus_jgtsui 
+        '''
         cellCoordinates = repo[crimeRates.reads[1]]
         coordinates = []
         for cellCoord in cellCoordinates.find():
             coordinates.append((cellCoord['longitude'],cellCoord['latitude']))
-        #'''
-
         '''
+	
         lines = [line.rstrip('\n') for line in open('centers.txt')]
-        coordinates = []
+        coordinates=[]
+        point=[]
         for line in lines:
-            if line != '':
-                coordinates.append([float(x) for x in line.split()])
-        #'''
+            if line!='':
+                point=[float(x) for x in line.split() ]
+                coordinates.append(point)
+                point=[]
 
         entry = dict((str(center[0]) + ' ' + str(center[1]),0) for center in coordinates)
         print("# Total Cell Coordinates: {}".format(len(coordinates)))
 
         repo.dropPermanent(crimeRates.setExtensions[0])
         repo.createPermanent(crimeRates.setExtensions[0])
-
+        data_dict=defaultdict(list)
         crimeDataSet = repo[crimeRates.reads[0]]
+        prop=repo[crimeRates.reads[2]]
+        
+        count_prop=0
+        repo.dropPermanent(crimeRates.setExtensions[1])
+        repo.createPermanent(crimeRates.setExtensions[1])
+        entry0 = dict((str(center[0]) + ' ' + str(center[1]),0) for center in coordinates)        
+        for elem in repo.aliyevaa_bsowens_dwangus_jgtsui.property_assessment.find():
+            try:
+                if ('coordinates' in elem['location']):
+                    count_prop += 1
+                    long = elem['location']['coordinates'][0]
+                    lat = elem['location']['coordinates'][1]
+
+                    
+                    asdasd = coordinates[0][0]
+                    qwuwq = coordinates[0][1]
+                    closest_so_far = calculate(long, lat, coordinates[0][0], coordinates[0][1])
+                    closest_center = str(coordinates[0][0]) + ' ' + str(coordinates[0][1])
+                    for center in coordinates[1:]:
+                        c_str = str(center[0]) + ' ' + str(center[1])
+                        d = calculate(long, lat, center[0], center[1])
+                        if d < closest_so_far:
+                            closest_so_far = d
+                            closest_center = c_str
+                   
+                    data_dict[closest_center].append(elem['av_total'])
+                           
+                    if count_prop % 100 == 0:
+                        print("Parsed " +  str(count) + " properti entries")
+            except:
+                pass
+        
+        print(count_prop)
+        for e in data_dict.keys():
+            repo.aliyevaa_bsowens_dwangus_jgtsui.boston_grid_properties_cellSize1000sqft.insert({str(e): data_dict[e]}, check_keys=False)
+         
+        print('FINISHED PROPERTIES')
         print(crimeDataSet.count())
         count = 0
         for elem in crimeDataSet.find():
@@ -85,11 +123,10 @@ class crimeRates(dml.Algorithm):
                 entry[closest_center] += 1
                 if count % 100 == 0:
                     print("Parsed " +  str(count) + " crime entries")
-
-        for e in entry.keys():
-            #crimeDataSet.insert({str(e): entry[e]}, check_keys=False)
-            myrepo[crimeRates.setExtensions[0]].insert({str(e): str(entry[e])}, check_keys=False)
-
+       
+        for e in entry.keys(): 
+            repo.aliyevaa_bsowens_dwangus_jgtsui.boston_grid_crime_rates_cellSize1000sqft.insert({str(e): str(entry[e])}, check_keys=False)
+       
         repo.logout()
         endTime = datetime.datetime.now()
         return {"start": startTime, "end": endTime}
@@ -104,6 +141,7 @@ class crimeRates(dml.Algorithm):
         doc.add_namespace('ont', 'http://datamechanics.io/ontology#')
         doc.add_namespace('log', 'http://datamechanics.io/log/')
         doc.add_namespace('bdp', 'https://maps.googleapis.com/maps/api/place')
+        
 
         this_script = doc.agent('alg:aliyevaa_bsowens_dwangus_jgtsui#crimeRates',
                                 {prov.model.PROV_TYPE: prov.model.PROV['SoftwareAgent'], 'ont:Extension': 'py'})
@@ -123,3 +161,5 @@ class crimeRates(dml.Algorithm):
 crimeRates.execute()
 doc = crimeRates.provenance()
 print(json.dumps(json.loads(doc.serialize()), indent=4))
+ 
+
