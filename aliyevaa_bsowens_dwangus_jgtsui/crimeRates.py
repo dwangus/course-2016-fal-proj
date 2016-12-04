@@ -86,9 +86,7 @@ class crimeRates(dml.Algorithm):
                             closest_center = c_str
                    
                     data_dict[closest_center].append(elem['av_total'])
-                           
-                    if count_prop % 100 == 0:
-                        print("Parsed " +  str(count) + " properti entries")
+
             except:
                 pass
         
