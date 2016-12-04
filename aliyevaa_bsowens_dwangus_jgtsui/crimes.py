@@ -9,7 +9,6 @@ import uuid
 import urllib.request
 
 class crimes_all(dml.Algorithm):
-	# Set up the database connection.	
 	contributor = 'aliyevaa_bsowens_dwangus_jgtsui'
 	reads = []
 	writes = ['aliyevaa_bsowens_dwangus_jgtsui.crimes_new']
