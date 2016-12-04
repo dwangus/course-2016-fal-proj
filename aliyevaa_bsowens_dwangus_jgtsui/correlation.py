@@ -94,7 +94,7 @@ class correlation(dml.Algorithm):
 		doc.wasAssociatedWith(get_liquor_data, this_script)
 
 		doc.usage(get_liquor_data , startTime, None)	
-		found = doc.entity('dat:aliyevaa_bsowens_dwangus_jgtsui#correlation', {prov.model.PROV_LABEL:'computing correlation between #of crimes in the cell & community score for the cell', prov.model.PROV_TYPE:'ont:DataSet'})
+		found = doc.entity('dat:aliyevaa_bsowens_dwangus_jgtsui#correlation', {prov.model.PROV_LABEL:'computing correlation between #of crimes &avg property value in the cell & community score for the cell', prov.model.PROV_TYPE:'ont:DataSet'})
 		doc.wasAttributedTo(found, this_script)
 		doc.wasGeneratedBy(found, get_liquor_data, endTime)
 		doc.wasDerivedFrom(found, get_liquor_data, get_liquor_data, get_liquor_data)
