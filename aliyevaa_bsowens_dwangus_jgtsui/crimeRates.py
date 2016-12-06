@@ -86,7 +86,17 @@ class crimeRates(dml.Algorithm):
         for el in entry.keys():
             repo.aliyevaa_bsowens_dwangus_jgtsui.crimeRates.insert({str(el) : str(entry[el])},check_keys=False)
 
-        json.dump(entry, out)
+
+        entry_copy = str(entry)
+        entry_copy = entry_copy.replace(" '-",' {lat:-')
+        entry_copy = entry_copy.replace(" 42", ', lng: 42')
+        entry_copy = entry_copy.replace("': ", ', count: ')
+        entry_copy = entry_copy.replace(", {", '}, {')
+        entry_copy = "{lat:" + entry_copy[4:]
+        entry_copy = entry_copy.replace("}, ", "},")
+        #json.dump(entry_copy, out)
+        out.write(entry_copy)
+
         repo.logout()
         endTime = datetime.datetime.now()
         return {"start": startTime, "end": endTime}
