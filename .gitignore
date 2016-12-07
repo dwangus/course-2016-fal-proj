@@ -125,3 +125,5 @@ journal/lsn
 *.lock
 
 *.json
+
+*.txt
