@@ -58,9 +58,10 @@ class distances(dml.Algorithm):
 
         out=open('out.txt', 'w')
         #'''
+        out = open('distances.txt','w')
         score=0
         prep=[]
-
+        output = ""
         for center in coordinates:
             lat = center[1]
             long = center[0]
@@ -73,8 +74,14 @@ class distances(dml.Algorithm):
                           "cell_center_latitude": lat, \
                           "cell_center_longitude": long})
             prep.append(entry)
+
+            output += "[" + str(lat) + "," + str(long) + "," + str(1.0/score) + "],"
+
+
+
             score=0
 
+        out.write("[" + output[:-1] + "]")
         str_prep=', '.join(json.dumps(d) for d in prep)
         l_prep='['+str_prep+']'
         r=json.loads(l_prep)

@@ -4,7 +4,8 @@ import prov.model
 import datetime
 import uuid
 import time
-import ast
+from ast import literal_eval as make_tuple
+
 from geopy.distance import vincenty as vct
 from bson.code import Code
 
@@ -42,7 +43,7 @@ class scoreLocations(dml.Algorithm):
         repo = client.repo
         repo.authenticate(scoreLocations.contributor, scoreLocations.contributor)
         myrepo = repo.aliyevaa_bsowens_dwangus_jgtsui
-            
+        out = open("community_spots.txt","w")
         newName = 'community_indicators'
         indicatorsColl = myrepo[newName]
         repo.dropPermanent(newName)
@@ -50,6 +51,7 @@ class scoreLocations(dml.Algorithm):
 
         pos_count = 0
         neg_count = 0
+        entry = ""
         ratio = 198/1858 # ratio is pos/neg counts
         for key in scoreLocations.oldSetExtensions:
             begin = time.time()
@@ -79,8 +81,12 @@ class scoreLocations(dml.Algorithm):
                         elif key == 'libraries':
                             title = doc['name']
                         else: title = "unknownName " + i
-
+                        try:
+                            loc = make_tuple(doc['location'])
+                        except:
+                            pass
                         pos_count += 1
+                        entry += "{lat:" + str(loc[0]) + ", lng:"  + str(loc[1]) + ", count: 100},"
                         indicatorsColl.insert({'title': title, 'type':key,
                                              'location': doc['location'],
                                             'community_score': 1})
@@ -103,10 +109,20 @@ class scoreLocations(dml.Algorithm):
 
                         neg_count += 1
                         # note: s
+                        try:
+                            loc = make_tuple(doc['location'])
+                        except:
+                            pass
+
+                        entry += "{lat:" + str(loc[0]) + ", lng:" + str(loc[1]) + ", count: 0},"
                         indicatorsColl.insert({'id': doc['_id'], 'title': title, 'type': key,
                                                     'location': doc['location'],
                                                'community_score': -1*ratio})
             print("Processing {} took {} seconds.\n".format(key, time.time() - begin))
+
+
+        # json.dump(entry_copy, out)
+        out.write(entry)
 
         repo.logout()
         #print("pos count =", pos_count) = 198
