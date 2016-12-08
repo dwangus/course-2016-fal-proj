@@ -1,35 +1,48 @@
-import jsonschemaimport json
-import dml
+import jsonschema
+import json
+#import dml
 import requests
-from flask import Flask, jsonify, abort, make_response, request
-from flask.ext.httpauth import HTTPBasicAuth
+from flask import Flask, jsonify, abort, make_response, request, render_template
+from flask_httpauth import HTTPBasicAuth
+
+"""
+1) how db stuff work with flask? collections are stored locally when we run the outside code,
+   so how do we access that here?
+2) wrapper function around python file, call that function
+combineRestauraunt.main(HAVE PARAMS)
+
+A- form on front end, take in var
+B- pass var from front end to back end,
+"""
 
 app = Flask(__name__)
 auth = HTTPBasicAuth()
-
+#'''
 CLIENT_SIDE_URL = "http://127.0.0.1"
 PORT = 8080
 
 # Set up the database connection.
+contributor = 'aliyevaa_bsowens_dwangus_jgtsui'
 client = dml.pymongo.MongoClient()
 repo = client.repo
-repo.authenticate(retrieveData.contributor, retrieveData.contributor)
-
+repo.authenticate(contributor, contributor)
+#'''
 '''
 users = [
     {'id': 1, 'username': u'alice'},
     {'id': 2, 'username': u'bob'}
 ]
-#'''
+
 
 schema = {
     "type": "object",
     "properties": {"username": {"type": "string"}},
     "required": ["username"]
 }
+#'''
 
+'''
 read_files = ['auth.json', 'client_secrets.json', 'etc.txt', 'theseAreAllFakeFiles.txt']
-write_filenames = []
 
 for file in read_files:
     with open(file) as data_file:
@@ -40,13 +53,17 @@ for file in read_files:
             client_secr = json.load(data_file)
 
         if file == read_files[0]:
-            auth = json.load(data_file)
+            etc = json.load(data_file)
 
         else:
-            auth = json.load(data_file)
+            theseAreAllFakeFiles = json.load(data_file)
+#'''
+@app.route("/", methods = ['GET','POST'])
+def index():
+   return render_template("index.html") # will be the crime heat maps
 
 
-@app.route('/client', methods=['OPTIONS'])
+@app.route('/resolution', methods=['OPTIONS'])
 def show_api():
     return jsonify(schema)
 
@@ -54,7 +71,7 @@ def show_api():
 @app.route('/client', methods=['GET'])
 @auth.login_required
 def show_client():
-    return open('client.html', 'r').read()
+    return render_template('client.html')
 
 
 @app.route('/app/api/v0.1/users', methods=['GET'])
