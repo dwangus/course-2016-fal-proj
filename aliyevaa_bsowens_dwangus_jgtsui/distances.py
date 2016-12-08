@@ -46,7 +46,7 @@ class distances(dml.Algorithm):
         for cellCoord in cellCoordinates.find():
             coordinates.append((cellCoord['longitude'], cellCoord['latitude']))
 
-        '''
+        #'''
         lines = [line.rstrip('\n') for line in open('centers.txt')]
         coordinates=[]
         point=[]
@@ -56,30 +56,39 @@ class distances(dml.Algorithm):
                 coordinates.append(point)
                 point=[]
 
-        out=open('out.txt', 'w')
+
         #'''
-        out = open('distances.txt','w')
+        out = open('crime.txt','w')
         score=0
         prep=[]
         output = ""
+        max = 0.0
+        min = 0.0
         for center in coordinates:
             lat = center[1]
             long = center[0]
             for elem in repo[distances.reads[0]].find():  # Every entry in community_indicators
-                d = calculate(elem['location']['coordinates'][0], elem['location']['coordinates'][1], long,lat)
-                score += d*elem['community_score']
+                try:
+                    d = calculate(eval(elem['location'])[0], eval(elem['location'])[1], long,lat)
+                    score += d*elem['community_score']
+                except:
+                    pass
 
             entry = {}
             entry.update({"cell_community_value": 1.0/score, \
                           "cell_center_latitude": lat, \
                           "cell_center_longitude": long})
             prep.append(entry)
-
-            output += "[" + str(lat) + "," + str(long) + "," + str(1.0/score) + "],"
+            scores
+            output += "{lat:" + str(lat) + ",long:" + str(long) + ",count:" + str((1.0/score)*-1000) + "},"
 
 
 
             score=0
+
+        #out.write("var addressPoints = [" + output[:-1] + "]")
+        for score in scores:
+
 
         out.write("[" + output[:-1] + "]")
         str_prep=', '.join(json.dumps(d) for d in prep)
