@@ -119,10 +119,12 @@ class retrieveData(dml.Algorithm):
 
 
             elif key == 'food_licenses':
+                continue
                 print("Transforming food_licenses dataset...")
                 food = myrepo['food_licenses']
                 food.create_index([('location', '2dsphere')])
             elif key == 'entertainment_licenses':
+                continue
                 print("Transforming entertainment_licenses dataset...")
                 ent = myrepo['entertainment_licenses']
                 for e in ent.find(modifiers={"$snapshot": True}):
