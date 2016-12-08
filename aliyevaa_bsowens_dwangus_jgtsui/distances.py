@@ -56,12 +56,14 @@ class distances(dml.Algorithm):
                 coordinates.append(point)
                 point=[]
 
-        out=open('out.txt', 'w')
+
         #'''
-        out = open('distances.js','w')
+        out = open('crime.txt','w')
         score=0
         prep=[]
         output = ""
+        max = 0.0
+        min = 0.0
         for center in coordinates:
             lat = center[1]
             long = center[0]
@@ -77,14 +79,18 @@ class distances(dml.Algorithm):
                           "cell_center_latitude": lat, \
                           "cell_center_longitude": long})
             prep.append(entry)
-
-            output += "[" + str(lat) + "," + str(long) + "," + str((score+3825)*100) + "],"
+            scores
+            output += "{lat:" + str(lat) + ",long:" + str(long) + ",count:" + str((1.0/score)*-1000) + "},"
 
 
 
             score=0
 
-        out.write("var addressPoints = [" + output[:-1] + "]")
+        #out.write("var addressPoints = [" + output[:-1] + "]")
+        for score in scores:
+
+
+        out.write("[" + output[:-1] + "]")
         str_prep=', '.join(json.dumps(d) for d in prep)
         l_prep='['+str_prep+']'
         r=json.loads(l_prep)
