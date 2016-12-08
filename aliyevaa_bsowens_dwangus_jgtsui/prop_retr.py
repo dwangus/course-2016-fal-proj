@@ -10,7 +10,6 @@ import ast
 import urllib.request
 
 class prop_retr(dml.Algorithm):
-        # Set up the database connection.
         contributor = 'aliyevaa_bsowens_dwangus_jgtsui'
         reads = []
         writes = ['aliyevaa_bsowens_dwangus_jgtsui.prop_retr']
