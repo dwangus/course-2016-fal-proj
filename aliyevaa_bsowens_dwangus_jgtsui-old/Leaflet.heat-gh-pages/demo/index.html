@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaflet.heat demo</title>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    <style>
+        #map { width: 800px; height: 600px; }
+        body { font: 16px/1.4 "Helvetica Neue", Arial, sans-serif; }
+        .ghbtns { position: relative; top: 4px; margin-left: 5px; }
+        a { color: #0077ff; }
+        #floating-panel {
+            font: 16px/1.4, "", sans-serif; 
+            font-style: normal;
+            position: absolute;
+            left:2px;
+            bottom: 2px;
+            z-index: 5;
+            background-color: rgba(255, 255, 255, 0.69);
+            border: 1px solid #999;
+            text-align: left;
+            font-family: 'Roboto','sans-serif';
+            line-height: 20px;
+            text-decoration: none;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-bottom: 5px;
+            padding-top: 5px;
+            display: inline-block;}
+    </style>
+    
+    
+</head>
+<body>
+
+
+
+<div id="map">
+    <div id="floating-panel">
+        <div>
+            <h1>OPTIONS</h1>
+            <form>
+                
+                <p>Start Year: <input type="number" value="2016"></p>
+                <p>End Year: &nbsp;<input type="number"value="2016"></p>
+                <p><input type="submit" onclick="apply()" value="Apply"></p>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script src="../node_modules/simpleheat/simpleheat.js"></script>
+<script src="../src/HeatLayer.js"></script> -->
+
+<script src="../dist/leaflet-heat.js"></script>
+
+    
+<script>
+    
+    function apply(){
+        alert("RELOADING");
+
+    } 
+    
+</script>    
+    
+<!--script src="http://leaflet.github.io/Leaflet.markercluster/example/realworld.10000.js"></script-->
+    
+    
+<script src="../../distances.js"></script>    
+<script>
+
+    
+    
+var map = L.map('map').setView([42.35, -71.1], 11);
+var tiles = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+}).addTo(map);
+
+addressPoints = addressPoints.map(function (p) { return [p[0], p[1]]; });
+
+var heat = L.heatLayer(addressPoints,{radius: 50, max:.9}).addTo(map);
+
+    
+    
+</script>
+</body>
+</html>

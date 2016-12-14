@@ -1,4 +1,6 @@
+print("Importing googlemaps")
 import googlemaps
+print("Now importing everything else")
 import urllib.request
 import json
 import dml
@@ -17,20 +19,6 @@ def prep_to_json (data):
 		libraries_list.append(d)
 	str_libraries_list=', '.join(json.dumps(d) for d in libraries_list)
 	return str_libraries_list
-	
-
-#privacy violation, but is required for using Google APIs (customized) 
-api_key='AIzaSyCKwiWXDPTAHdUFPS9UOQ732-gJ3dCta9w'
-
-gmaps = googlemaps.Client(key=api_key)
-google_places=gmaps.places(query='boston libraries locations', location='Boston, MA')
-
-pg2='CvQB5wAAAJTat3G_zdMHxhK0T6Yi00pi0slM9zxNcaeNUdbVihwDRACdRcelhNU4ixtX9dXwBO0PyJrdGlQQ1JzwXuUBl0qirHobNH7gcN5EM4mRt775X2BoybefBroJ_fcpH1Z06dHMEQerVBAarRyYWfXzsmUrkgyz-yYA2QUWbt7S9vh84r3248RwofawUWnfmvh9BWMMXhqzKfifJeWfWKlnmNFoTsvA8UsfZMILYhtQtAf9fh4YeyTOMIrM_WqPIFrpu24c6KKi8uLrprMPEhZ6hGkbC1deH4sGmn_daSCd354915KabQtmM5veH23t_V6tKBIQaAJ7_s2zgygYbk0XMQsVWBoUQnRn7HOpEWDZo_ly79X8vUoGlVo'
-google_places_1=gmaps.places(query='boston libraries locations', location='Boston, MA', page_token=pg2)
-
-art_list='['+prep_to_json(google_places)+', '+prep_to_json(google_places_1)+']'
-r=json.loads(art_list)
-
 
 class libraries(dml.Algorithm):
 	contributor = 'aliyevaa_bsowens_dwangus_jgtsui'
@@ -38,12 +26,15 @@ class libraries(dml.Algorithm):
 	writes = ['aliyevaa_bsowens_dwangus_jgtsui.libraries']
 
 	@staticmethod
-	def execute(trial = False):
+	def execute(r, trial = False):
 		startTime = datetime.datetime.now()
 		client = dml.pymongo.MongoClient()
 		repo = client.repo
 		repo.authenticate(libraries.contributor, libraries.contributor)
-		
+
+		print("Number of entries before dropping table: {}".format(repo.aliyevaa_bsowens_dwangus_jgtsui.libraries.count()))
+		#return
+
 		repo.dropPermanent("libraries")
 		repo.createPermanent("libraries")
 
@@ -53,7 +44,7 @@ class libraries(dml.Algorithm):
 			lat=elem['lat']
 			repo.aliyevaa_bsowens_dwangus_jgtsui.libraries.update({'_id': elem['_id']}, {'$set': {'location': {'type': 'Point', 'coordinates': [float(lng),float(lat)]}}})
 		repo.aliyevaa_bsowens_dwangus_jgtsui.libraries.create_index([('location', '2dsphere')])
-		
+		print("Number of entries inserted into Mongo: {}".format(repo.aliyevaa_bsowens_dwangus_jgtsui.libraries.count()))
 
 		repo.logout()
 		endTime = datetime.datetime.now()
@@ -85,7 +76,25 @@ class libraries(dml.Algorithm):
 		return doc
 
 
-libraries.execute()
-doc = libraries.provenance()
-print(doc.get_provn())
-print(json.dumps(json.loads(doc.serialize()), indent=4))
+#libraries.execute()
+#doc = libraries.provenance()
+#print(doc.get_provn())
+#print(json.dumps(json.loads(doc.serialize()), indent=4))
+
+def main():
+        print("Executing: libraries.py")
+        
+        #privacy violation, but is required for using Google APIs (customized) 
+        api_key='AIzaSyCKwiWXDPTAHdUFPS9UOQ732-gJ3dCta9w'
+
+        gmaps = googlemaps.Client(key=api_key)
+        google_places=gmaps.places(query='boston libraries locations', location='Boston, MA')
+
+        pg2='CvQB5wAAAJTat3G_zdMHxhK0T6Yi00pi0slM9zxNcaeNUdbVihwDRACdRcelhNU4ixtX9dXwBO0PyJrdGlQQ1JzwXuUBl0qirHobNH7gcN5EM4mRt775X2BoybefBroJ_fcpH1Z06dHMEQerVBAarRyYWfXzsmUrkgyz-yYA2QUWbt7S9vh84r3248RwofawUWnfmvh9BWMMXhqzKfifJeWfWKlnmNFoTsvA8UsfZMILYhtQtAf9fh4YeyTOMIrM_WqPIFrpu24c6KKi8uLrprMPEhZ6hGkbC1deH4sGmn_daSCd354915KabQtmM5veH23t_V6tKBIQaAJ7_s2zgygYbk0XMQsVWBoUQnRn7HOpEWDZo_ly79X8vUoGlVo'
+        google_places_1=gmaps.places(query='boston libraries locations', location='Boston, MA', page_token=pg2)
+
+        art_list='['+prep_to_json(google_places)+', '+prep_to_json(google_places_1)+']'
+        r=json.loads(art_list)
+        
+        libraries.execute(r)
+        doc = libraries.provenance()

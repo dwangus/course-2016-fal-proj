@@ -18,25 +18,6 @@ def prep_to_json (data):
 		parking_list.append(d)
 	str_parking_list=', '.join(json.dumps(d) for d in parking_list)
 	return str_parking_list
-	
-
-
-#privacy violation, but is required for using Google APIs (customized) 
-api_key='AIzaSyCKwiWXDPTAHdUFPS9UOQ732-gJ3dCta9w'
-
-gmaps = googlemaps.Client(key=api_key)
-google_places=gmaps.places(query='Boston Parking', location='Boston, MA')
-
-pg2='CuQB2wAAAOC0gaeKskZdoXlL0IEZQdq6Goh5V3co-2lV5nXMBn3Xm0-Dfc4NIv0ZTF59i67rb7pYqSYccWnSemirZJm413GwXadgJ6Qp5AZ6FcYEWguNRB1rf3aqAPkafHhLtz14CHnUuXa1MD_xh9dR-ElBR_3zoKRncnAXAC-F0xVKqr-neWXF6RdbpeASczCFjCjFB9aK-8HbZodiGk9siKtm3Cl3Dcc7bv67S_OrIu5PCv55mTQR0cgZgypGcz6ctcwRtZ4G0f9U9cqNajZq2ZYn5peh9P4fMkTfub-sCr7v0iFEEhB___HE7nGPkGsBQg8argV0GhSgF428vvpKPEzHKk__ExzaWGCuzw'
-google_places_1=gmaps.places(query='Boston Parking', location='Boston, MA', page_token=pg2)
-
-pg3='CoQDewEAAE-PjFnvJBFH81S5UIGvcthwgD-XauRh9YLD0JRviv5TpiqE7XRAjtRL4igFEMcTSJ_ArAy2OetcEx3W-y9lCRWr9Ghbd2w3yVgBbIBeewe5FsnulsdbRDHrfrSjDOpyzODLLgbueFCE_tcZR8czzmHFf6RwnvyVjdMkFDCr4MgyCSgZZOI5bUWfujMrT6XxhvYACiuwQQVFPjSFP9dxLhO88RgBIV1LHhrK0loruQcH04adVWtzrL04chUVNhlSiL6wv2j_FinWun_ulKwkRegGCfLQGVezgDZ6kZ3LoaRoiyYkmI2qbWrXbPIcqDDJ_tqfJd71U0hRu1NcWavMIUwIcnM1LC99rRSFSX90mo2YeHP5KIC1BBtDSiJ_XP2iUgO82vtz5kzitSbMENf8DmmaFIux1HkHHXvp7IIfhV4I7Jxj4m3B2qKHqsZjL2l8a4W0Rk7Pwkg-qD3EKYIPqUzBcMEIB4L5Q5bT6XOsla3t9AxEMgUPW_1YXCrCtLCPPxIQmeCwG4TP_O08PU8hCW57CxoUXsWiL7vazToAWANu54OF0DkhZhw'
-
-google_places_2=gmaps.places(query='Boston Parking', location='Boston, MA', page_token=pg3)
-
-art_list='['+prep_to_json(google_places)+', '+prep_to_json(google_places_1)+', '+prep_to_json(google_places_2)+']'
-
-r=json.loads(art_list)
 
 
 class parking(dml.Algorithm):
@@ -45,12 +26,14 @@ class parking(dml.Algorithm):
 	writes = ['aliyevaa_bsowens_dwangus_jgtsui.parking']
 
 	@staticmethod
-	def execute(trial = False):
+	def execute(r, trial = False):
 		startTime = datetime.datetime.now()
 		client = dml.pymongo.MongoClient()
 		repo = client.repo
 		repo.authenticate(parking.contributor, parking.contributor)
-		
+
+		print("Number of entries before dropping table: {}".format(repo.aliyevaa_bsowens_dwangus_jgtsui.parking.count()))
+		#return
 		repo.dropPermanent("parking")
 		repo.createPermanent("parking")
 
@@ -61,6 +44,7 @@ class parking(dml.Algorithm):
 			lat=elem['lat']
 			repo.aliyevaa_bsowens_dwangus_jgtsui.parking.update({'_id': elem['_id']}, {'$set': {'location': {'type': 'Point', 'coordinates': [float(lng),float(lat)]}}})
 		repo.aliyevaa_bsowens_dwangus_jgtsui.parking.create_index([('location', '2dsphere')])
+		print("Number of entries inserted into Mongo: {}".format(repo.aliyevaa_bsowens_dwangus_jgtsui.parking.count()))
 		repo.logout()
 		endTime = datetime.datetime.now()
 		return {"start":startTime, "end":endTime}
@@ -91,8 +75,30 @@ class parking(dml.Algorithm):
 		return doc
 
 
-parking.execute()
-doc = parking.provenance()
-print(doc.get_provn())
-print(json.dumps(json.loads(doc.serialize()), indent=4))
+#parking.execute()
+#doc = parking.provenance()
+#print(doc.get_provn())
+#print(json.dumps(json.loads(doc.serialize()), indent=4))
 
+def main():
+        print("Executing: parking.py")
+
+        #privacy violation, but is required for using Google APIs (customized) 
+        api_key='AIzaSyCKwiWXDPTAHdUFPS9UOQ732-gJ3dCta9w'
+
+        gmaps = googlemaps.Client(key=api_key)
+        google_places=gmaps.places(query='Boston Parking', location='Boston, MA')
+
+        pg2='CuQB2wAAAOC0gaeKskZdoXlL0IEZQdq6Goh5V3co-2lV5nXMBn3Xm0-Dfc4NIv0ZTF59i67rb7pYqSYccWnSemirZJm413GwXadgJ6Qp5AZ6FcYEWguNRB1rf3aqAPkafHhLtz14CHnUuXa1MD_xh9dR-ElBR_3zoKRncnAXAC-F0xVKqr-neWXF6RdbpeASczCFjCjFB9aK-8HbZodiGk9siKtm3Cl3Dcc7bv67S_OrIu5PCv55mTQR0cgZgypGcz6ctcwRtZ4G0f9U9cqNajZq2ZYn5peh9P4fMkTfub-sCr7v0iFEEhB___HE7nGPkGsBQg8argV0GhSgF428vvpKPEzHKk__ExzaWGCuzw'
+        google_places_1=gmaps.places(query='Boston Parking', location='Boston, MA', page_token=pg2)
+
+        pg3='CoQDewEAAE-PjFnvJBFH81S5UIGvcthwgD-XauRh9YLD0JRviv5TpiqE7XRAjtRL4igFEMcTSJ_ArAy2OetcEx3W-y9lCRWr9Ghbd2w3yVgBbIBeewe5FsnulsdbRDHrfrSjDOpyzODLLgbueFCE_tcZR8czzmHFf6RwnvyVjdMkFDCr4MgyCSgZZOI5bUWfujMrT6XxhvYACiuwQQVFPjSFP9dxLhO88RgBIV1LHhrK0loruQcH04adVWtzrL04chUVNhlSiL6wv2j_FinWun_ulKwkRegGCfLQGVezgDZ6kZ3LoaRoiyYkmI2qbWrXbPIcqDDJ_tqfJd71U0hRu1NcWavMIUwIcnM1LC99rRSFSX90mo2YeHP5KIC1BBtDSiJ_XP2iUgO82vtz5kzitSbMENf8DmmaFIux1HkHHXvp7IIfhV4I7Jxj4m3B2qKHqsZjL2l8a4W0Rk7Pwkg-qD3EKYIPqUzBcMEIB4L5Q5bT6XOsla3t9AxEMgUPW_1YXCrCtLCPPxIQmeCwG4TP_O08PU8hCW57CxoUXsWiL7vazToAWANu54OF0DkhZhw'
+
+        google_places_2=gmaps.places(query='Boston Parking', location='Boston, MA', page_token=pg3)
+
+        art_list='['+prep_to_json(google_places)+', '+prep_to_json(google_places_1)+', '+prep_to_json(google_places_2)+']'
+
+        r=json.loads(art_list)
+        
+        parking.execute(r)
+        doc = parking.provenance()
